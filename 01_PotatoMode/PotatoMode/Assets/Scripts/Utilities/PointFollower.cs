@@ -6,10 +6,8 @@ namespace PotatoMode.Utilities
     public class PointFollower : MonoBehaviour
     {
         [SerializeField] private Transform _followTarget;
-
-        [Header("Follow parameters")] [SerializeField] [Range(0.0f, 5.0f)]
-        private float _followTime;
-
+        [Header("Follow parameters")] 
+        [SerializeField] [Range(0.0f, 5.0f)] private float _followTime;
         [SerializeField] private Vector3 _offset;
 
         private Transform _transform;

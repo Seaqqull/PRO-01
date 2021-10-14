@@ -80,7 +80,7 @@ namespace PotatoMode
             
             if(_jump)
             {
-                _footAnimator.SetTrigger("Jump");
+                _footAnimator.SetTrigger(Utilities.Constants.Animation.JUMP);
                 
                 _body.AddForce(Vector2.up * _jumpPower, ForceMode2D.Impulse);
                 _grounded = false;
@@ -106,22 +106,22 @@ namespace PotatoMode
             var inMove = (_body.velocity.magnitude > Mathf.Epsilon);
             
             // Foot
-            _footAnimator.SetBool("InMove", inMove);
-            _footAnimator.SetBool("IsRunning", InputHandler.Instance.Shift);
+            _footAnimator.SetBool(Utilities.Constants.Animation.IN_MOVE, inMove);
+            _footAnimator.SetBool(Utilities.Constants.Animation.IS_RUNNING, InputHandler.Instance.Shift);
             
             // Eye
-            _eyeAnimator.SetBool("InMove", inMove);
-            _eyeAnimator.SetBool("IsRunning", InputHandler.Instance.Shift);
+            _eyeAnimator.SetBool(Utilities.Constants.Animation.IN_MOVE, inMove);
+            _eyeAnimator.SetBool(Utilities.Constants.Animation.IS_RUNNING, InputHandler.Instance.Shift);
         }
 
         private IEnumerator DashWaitRoutine()
         {
-            _footAnimator.SetBool("IsDashing", true);
+            _footAnimator.SetBool(Utilities.Constants.Animation.IS_DASHING, true);
             _blockInput = true;
             
             yield return new WaitForSeconds(_dashTime);
             
-            _footAnimator.SetBool("IsDashing", false);
+            _footAnimator.SetBool(Utilities.Constants.Animation.IS_DASHING, false);
             _blockInput = false;
         }
         
@@ -132,7 +132,7 @@ namespace PotatoMode
             while (true)
             {
                 _grounded = Physics2D.Raycast(_groundPivot.position, Vector2.down, _groundDistance, _groundMask);
-                _footAnimator.SetBool("InAir", !_grounded);
+                _footAnimator.SetBool(Utilities.Constants.Animation.IN_AIR, !_grounded);
                 yield return waitPeriod;
             }
         }
