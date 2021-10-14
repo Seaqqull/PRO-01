@@ -107,11 +107,11 @@ namespace PotatoMode
             
             // Foot
             _footAnimator.SetBool(Utilities.Constants.Animation.IN_MOVE, inMove);
-            _footAnimator.SetBool(Utilities.Constants.Animation.IS_RUNNING, InputHandler.Instance.Shift);
+            _footAnimator.SetBool(Utilities.Constants.Animation.IS_RUNNING, (InputHandler.Instance.Shift && inMove));
             
             // Eye
             _eyeAnimator.SetBool(Utilities.Constants.Animation.IN_MOVE, inMove);
-            _eyeAnimator.SetBool(Utilities.Constants.Animation.IS_RUNNING, InputHandler.Instance.Shift);
+            _eyeAnimator.SetBool(Utilities.Constants.Animation.IS_RUNNING, (InputHandler.Instance.Shift && inMove));
         }
 
         private IEnumerator DashWaitRoutine()
