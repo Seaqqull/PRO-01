@@ -1,12 +1,13 @@
 ﻿using System.Collections;
 using PotatoMode.Input;
+using PotatoMode.Platforms.Data;
 using UnityEngine;
 
 
 namespace PotatoMode
 {
     [RequireComponent(typeof(Rigidbody2D))]
-    public class Player : MonoBehaviour
+    public class Player : MonoBehaviour, IConsumer
     {
         #region Constants
         private const float GROUND_CHECKING = 0.1f;
@@ -20,6 +21,7 @@ namespace PotatoMode
         [SerializeField] private float _dashTime;
         [Header("Collision")] 
         [SerializeField] private Transform _groundPivot;
+        [SerializeField] private Collider2D _groundCollider;
         [SerializeField] private float _groundDistance;
         [SerializeField] private LayerMask _groundMask;
         [Header("Animations")] 
@@ -29,6 +31,7 @@ namespace PotatoMode
         [SerializeField] private Transform _view;
 
         private float _movementDirection;
+        private Transform _transform;
         private Rigidbody2D _body;
 
         private Coroutine _groundCheckingCoroutine;
@@ -38,9 +41,13 @@ namespace PotatoMode
         private bool _jump;
         private bool _dash;
         
-
+        public Transform Transform { get => _transform; }
+        public Rigidbody2D Body { get => _body; }
+        
+        
         private void Awake()
         {
+            _transform = transform;
             _body = GetComponent<Rigidbody2D>();
             if (_view == null)
                 _view = transform;
@@ -131,10 +138,13 @@ namespace PotatoMode
             
             while (true)
             {
-                _grounded = Physics2D.Raycast(_groundPivot.position, Vector2.down, _groundDistance, _groundMask);
+                //_grounded = Physics2D.Raycast(_groundPivot.position, Vector2.down, _groundDistance, _groundMask);
+                _grounded = Physics2D.BoxCast(_groundCollider.bounds.center, _groundCollider.bounds.size, 0.0f,
+                    Vector2.down, 0.0f, _groundMask);
                 _footAnimator.SetBool(Utilities.Constants.Animation.IN_AIR, !_grounded);
                 yield return waitPeriod;
             }
         }
+
     }
 }
