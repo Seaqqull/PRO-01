@@ -27,6 +27,7 @@ namespace PotatoMode
         [Header("Animations")] 
         [SerializeField] private Animator _eyeAnimator;
         [SerializeField] private Animator _footAnimator;
+        [SerializeField] private Animator _handAnimator;
         [Header("References")] 
         [SerializeField] private Transform _view;
 
@@ -88,6 +89,7 @@ namespace PotatoMode
             if(_jump)
             {
                 _footAnimator.SetTrigger(Utilities.Constants.Animation.JUMP);
+                _handAnimator.SetTrigger(Utilities.Constants.Animation.JUMP);
                 
                 _body.AddForce(Vector2.up * _jumpPower, ForceMode2D.Impulse);
                 _grounded = false;
@@ -119,16 +121,22 @@ namespace PotatoMode
             // Eye
             _eyeAnimator.SetBool(Utilities.Constants.Animation.IN_MOVE, inMove);
             _eyeAnimator.SetBool(Utilities.Constants.Animation.IS_RUNNING, (InputHandler.Instance.Shift && inMove));
+            
+            // Hand
+            _handAnimator.SetBool(Utilities.Constants.Animation.IN_MOVE, inMove);
+            _handAnimator.SetBool(Utilities.Constants.Animation.IS_RUNNING, (InputHandler.Instance.Shift && inMove));
         }
 
         private IEnumerator DashWaitRoutine()
         {
             _footAnimator.SetBool(Utilities.Constants.Animation.IS_DASHING, true);
+            _handAnimator.SetBool(Utilities.Constants.Animation.IS_DASHING, true);
             _blockInput = true;
             
             yield return new WaitForSeconds(_dashTime);
             
             _footAnimator.SetBool(Utilities.Constants.Animation.IS_DASHING, false);
+            _handAnimator.SetBool(Utilities.Constants.Animation.IS_DASHING, false);
             _blockInput = false;
         }
         
@@ -142,6 +150,7 @@ namespace PotatoMode
                 _grounded = Physics2D.BoxCast(_groundCollider.bounds.center, _groundCollider.bounds.size, 0.0f,
                     Vector2.down, 0.0f, _groundMask);
                 _footAnimator.SetBool(Utilities.Constants.Animation.IN_AIR, !_grounded);
+                _handAnimator.SetBool(Utilities.Constants.Animation.IN_AIR, !_grounded);
                 yield return waitPeriod;
             }
         }
