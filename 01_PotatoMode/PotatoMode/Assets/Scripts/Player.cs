@@ -14,6 +14,7 @@ namespace PotatoMode
         #endregion
         
         [SerializeField] private float _movementSpeed;
+        [SerializeField] [Range(0.0f, 5.0f)] private float _airMovementSpeed;
         [SerializeField] private float _runSpeed;
         [SerializeField] private float _jumpPower;
         [Header("Dashing")]
@@ -83,9 +84,15 @@ namespace PotatoMode
 
         private void FixedUpdate()
         {
-            if (_blockInput || !_grounded)
+            if (_blockInput)
                 return;
-            
+            if (!_grounded)
+            {
+                _body.AddForce(_movementSpeed * _airMovementSpeed *
+                                  (InputHandler.Instance.Horizontal * Vector2.right));
+                return;
+            }
+
             if(_jump)
             {
                 _footAnimator.SetTrigger(Utilities.Constants.Animation.JUMP);
@@ -112,7 +119,7 @@ namespace PotatoMode
 
         private void UpdateAnimation()
         {
-            var inMove = (_body.velocity.magnitude > Mathf.Epsilon);
+            var inMove = (_body.velocity != Vector2.zero);
             
             // Foot
             _footAnimator.SetBool(Utilities.Constants.Animation.IN_MOVE, inMove);
@@ -146,7 +153,6 @@ namespace PotatoMode
             
             while (true)
             {
-                //_grounded = Physics2D.Raycast(_groundPivot.position, Vector2.down, _groundDistance, _groundMask);
                 _grounded = Physics2D.BoxCast(_groundCollider.bounds.center, _groundCollider.bounds.size, 0.0f,
                     Vector2.down, 0.0f, _groundMask);
                 _footAnimator.SetBool(Utilities.Constants.Animation.IN_AIR, !_grounded);
