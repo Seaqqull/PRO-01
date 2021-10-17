@@ -33,6 +33,7 @@ namespace PotatoMode.Managers
 
             Instance = this;
             
+            Cursor.visible = false;
             _levelCoroutine = StartCoroutine(LevelRoutine());
         }
 

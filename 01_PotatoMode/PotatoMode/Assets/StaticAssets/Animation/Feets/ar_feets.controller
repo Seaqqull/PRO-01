@@ -404,7 +404,7 @@ AnimatorController:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: ar_foots
+  m_Name: ar_feets
   serializedVersion: 5
   m_AnimatorParameters:
   - m_Name: InMove
