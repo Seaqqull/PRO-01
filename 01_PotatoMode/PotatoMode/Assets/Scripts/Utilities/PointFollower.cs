@@ -17,8 +17,7 @@ namespace PotatoMode.Utilities
         {
             _transform = transform;
         }
-
-
+        
         private void LateUpdate()
         {
             _transform.position = Vector3.Lerp(_transform.position, (_followTarget.position + _offset), _followTime);

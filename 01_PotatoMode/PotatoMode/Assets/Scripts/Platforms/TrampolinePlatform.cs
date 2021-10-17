@@ -36,16 +36,7 @@ namespace PotatoMode.Platforms
                 }
             }
         }
-
-
-        protected override void OnEnter(IConsumer consumer)
-        {
-            _affectors.Add(consumer);
-            
-            if (_affectors.Count == 1)
-                _forceImpactCoroutine = StartCoroutine(ForceImpactRoutine());
-        }
-
+        
         protected override void OnExit(IConsumer consumer)
         {
             _affectors.Remove(consumer);
@@ -55,6 +46,14 @@ namespace PotatoMode.Platforms
                 StopCoroutine(_forceImpactCoroutine);
                 _forceImpactCoroutine = null;
             }
+        }
+        
+        protected override void OnEnter(IConsumer consumer)
+        {
+            _affectors.Add(consumer);
+            
+            if (_affectors.Count == 1)
+                _forceImpactCoroutine = StartCoroutine(ForceImpactRoutine());
         }
     }
 }

@@ -10,7 +10,7 @@ namespace PotatoMode
     public class Player : MonoBehaviour, IConsumer
     {
         #region Constants
-        private const float GROUND_CHECKING = 0.1f;
+        private const float GROUND_CHECK_PERIOD = 0.1f;
         #endregion
         
         [SerializeField] private float _movementSpeed;
@@ -149,7 +149,7 @@ namespace PotatoMode
         
         private IEnumerator GroundCheckRoutine()
         {
-            var waitPeriod = new WaitForSeconds(GROUND_CHECKING);
+            var waitPeriod = new WaitForSeconds(GROUND_CHECK_PERIOD);
             
             while (true)
             {

@@ -1,20 +1,16 @@
-﻿using UnityEngine.SceneManagement;
-using PotatoMode.Platforms.Data;
-using UnityEngine;
+﻿using PotatoMode.Platforms.Data;
+using PotatoMode.Managers;
 
 
 namespace PotatoMode.Platforms
 {
     public class ResetGamePlatform : Platform
     {
-        [SerializeField] private int _sceneIndex;
-        
-        
         protected override void OnExit(IConsumer consumer) { }
         
         protected override void OnEnter(IConsumer consumer)
         {
-            SceneManager.LoadScene(_sceneIndex);
+            LevelManager.Instance.EndLevel();
         }
     }
 }

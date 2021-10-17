@@ -9,19 +9,20 @@ namespace PotatoMode.Platforms
     {
         private Collider2D _collider;
         
-        private void OnTriggerEnter2D(Collider2D intruder)
-        {
-            if(intruder.gameObject.TryGetComponent<IConsumer>(out var consumer))
-            {
-                OnEnter(consumer);
-            }
-        }
         
         private void OnTriggerExit2D(Collider2D intruder)
         {
             if(intruder.gameObject.TryGetComponent<IConsumer>(out var consumer))
             {
                 OnExit(consumer);
+            }
+        }
+        
+        private void OnTriggerEnter2D(Collider2D intruder)
+        {
+            if(intruder.gameObject.TryGetComponent<IConsumer>(out var consumer))
+            {
+                OnEnter(consumer);
             }
         }
         
