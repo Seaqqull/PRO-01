@@ -1,5 +1,6 @@
 ﻿using UnityEngine.SceneManagement;
 using System.Collections;
+using PotatoMode.Input;
 using UnityEngine;
 using TMPro;
 
@@ -14,12 +15,16 @@ namespace PotatoMode.Managers
         [SerializeField] private TMP_Text _endTimeText;
         [SerializeField] private float _endGameTime;
         [SerializeField] private int _gameIndex;
+        [Header("UI")]
+        [SerializeField] private GameObject _pressUI;
 
         private Coroutine _levelCoroutine;
+        private float _timeScale;
         private float _gameTime;
         
         public static LevelManager Instance { get; private set; }
 
+        public bool LevelStarted { get; private set; }
         public bool LevelEnded { get; private set; }
 
 
@@ -31,10 +36,26 @@ namespace PotatoMode.Managers
                 return;
             }
 
+
             Instance = this;
             
             Cursor.visible = false;
             _levelCoroutine = StartCoroutine(LevelRoutine());
+
+            _timeScale = Time.timeScale;
+            Time.timeScale = 0.0f;
+        }
+
+        private void Update()
+        {
+            if (LevelStarted || !InputHandler.Instance.Space)
+                return;
+
+
+            LevelStarted = true;
+            Time.timeScale = _timeScale;
+
+            _pressUI.SetActive(false);
         }
 
         private void OnDestroy()
@@ -60,9 +81,11 @@ namespace PotatoMode.Managers
         {
             do
             {
-                _gameTime += Time.deltaTime;
-                SetCountdownTime(_gameTime);
-                
+                if (LevelStarted)
+                {
+                    _gameTime += Time.deltaTime;
+                    SetCountdownTime(_gameTime);
+                }
                 yield return null;
             } while (!LevelEnded);    
         }
@@ -82,12 +105,18 @@ namespace PotatoMode.Managers
             
             SceneManager.LoadScene(_gameIndex);
         }
-        
+
+
+        public void EndLevel()
+        {
+            LevelEnded = true;
+        }
+
         public void SetCountdownTime(float amount)
         {
             _countdownText.text = GetFormattedTime(amount);
-        }
-        
+        }        
+
         public string GetFormattedTime(float time)
         {
             var milliseconds = (time * 1000) % 1000;
@@ -100,9 +129,14 @@ namespace PotatoMode.Managers
         }
 
 
-        public void EndLevel()
+        public Memento.ILevelMemento MakeMemento()
         {
-            LevelEnded = true;
+            return new Memento.LevelSnapshot(_gameTime);
+        }
+
+        public void RecoverFromMemento(Memento.ILevelMemento memnto)
+        {
+            _gameTime = memnto.Time;
         }
     }
 }

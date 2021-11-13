@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 
 
-namespace UPotatoMode.tilities
+namespace PotatoMode.tilities
 {
     public class ScenePoint : MonoBehaviour
     {

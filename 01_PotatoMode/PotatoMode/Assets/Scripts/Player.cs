@@ -1,5 +1,7 @@
 ﻿using PotatoMode.Platforms.Data;
+using PotatoMode.Managers;
 using System.Collections;
+using PotatoMode.Players;
 using PotatoMode.Input;
 using UnityEngine;
 
@@ -12,7 +14,7 @@ namespace PotatoMode
         #region Constants
         private const float GROUND_CHECK_PERIOD = 0.1f;
         #endregion
-        
+
         [SerializeField] private float _movementSpeed;
         [SerializeField] [Range(0.0f, 5.0f)] private float _airMovementSpeed;
         [SerializeField] private float _runSpeed;
@@ -20,20 +22,21 @@ namespace PotatoMode
         [Header("Dashing")]
         [SerializeField] private float _dashPower;
         [SerializeField] private float _dashTime;
-        [Header("Collision")] 
+        [Header("Collision")]
         [SerializeField] private Transform _groundPivot;
         [SerializeField] private Collider2D _groundCollider;
         [SerializeField] private float _groundDistance;
         [SerializeField] private LayerMask _groundMask;
-        [Header("Animations")] 
+        [Header("Animations")]
         [SerializeField] private Animator _eyeAnimator;
         [SerializeField] private Animator _footAnimator;
         [SerializeField] private Animator _handAnimator;
-        [Header("References")] 
+        [Header("References")]
         [SerializeField] private Transform _view;
 
         private float _movementDirection;
         private Transform _transform;
+        private IPlayerState _state;
         private Rigidbody2D _body;
 
         private Coroutine _groundCheckingCoroutine;
@@ -42,10 +45,21 @@ namespace PotatoMode
         private bool _grounded;
         private bool _jump;
         private bool _dash;
-        
+
         public Transform Transform { get => _transform; }
         public Rigidbody2D Body { get => _body; }
-        
+
+        // State properties
+        public float MovementDirection
+        {
+            get { return _movementDirection; }
+            set { _movementDirection = value; }
+        }
+        public Transform View
+        {
+            get { return _view; }
+        }
+
         
         private void Awake()
         {
@@ -53,6 +67,8 @@ namespace PotatoMode
             _body = GetComponent<Rigidbody2D>();
             if (_view == null)
                 _view = transform;
+
+            _state = new BlockInputPlayerState();
         }
 
         private void OnEnable()
@@ -67,25 +83,20 @@ namespace PotatoMode
 
         private void Update()
         {
-            UpdateAnimation();
-            
-            if (_blockInput || !_grounded)
+            if (!LevelManager.Instance.LevelStarted)
                 return;
-            _movementDirection = Mathf.Sign(InputHandler.Instance.Horizontal);
-            _view.localScale = (InputHandler.Instance.Horizontal == 0.0f)
-                ? _view.localScale : new Vector3(_movementDirection, 1, 1);
 
-            
-            if (InputHandler.Instance.Up)
-                _jump = true;
-            else if (InputHandler.Instance.Space)
-                _dash = true;
+            UpdateAnimation();
+
+            _state.OnUpdate(this);
         }
 
         private void FixedUpdate()
         {
-            if (_blockInput)
+            if (_blockInput || !LevelManager.Instance.LevelStarted)
                 return;
+
+
             if (!_grounded)
             {
                 _body.AddForce(_movementSpeed * _airMovementSpeed *
@@ -99,7 +110,8 @@ namespace PotatoMode
                 _handAnimator.SetTrigger(Utilities.Constants.Animation.JUMP);
                 
                 _body.AddForce(Vector2.up * _jumpPower, ForceMode2D.Impulse);
-                _grounded = false;
+                _state = new BlockInputPlayerState();
+                _grounded = false;                
                 _jump = false;
                 return;
             }
@@ -138,12 +150,17 @@ namespace PotatoMode
         {
             _footAnimator.SetBool(Utilities.Constants.Animation.IS_DASHING, true);
             _handAnimator.SetBool(Utilities.Constants.Animation.IS_DASHING, true);
+
+            _state = new BlockInputPlayerState();
             _blockInput = true;
             
             yield return new WaitForSeconds(_dashTime);
             
             _footAnimator.SetBool(Utilities.Constants.Animation.IS_DASHING, false);
             _handAnimator.SetBool(Utilities.Constants.Animation.IS_DASHING, false);
+
+            if(_grounded)
+                _state = new GroundedPlayerState();
             _blockInput = false;
         }
         
@@ -155,11 +172,28 @@ namespace PotatoMode
             {
                 _grounded = Physics2D.BoxCast(_groundCollider.bounds.center, _groundCollider.bounds.size, 0.0f,
                     Vector2.down, 0.0f, _groundMask);
-                _footAnimator.SetBool(Utilities.Constants.Animation.IN_AIR, !_grounded);
+
+                // Check state
+                if (_grounded && (_state is BlockInputPlayerState))
+                    _state = new GroundedPlayerState();
+                else if (!_grounded && (_state is GroundedPlayerState))
+                    _state = new BlockInputPlayerState();
+
+                    _footAnimator.SetBool(Utilities.Constants.Animation.IN_AIR, !_grounded);
                 _handAnimator.SetBool(Utilities.Constants.Animation.IN_AIR, !_grounded);
                 yield return waitPeriod;
             }
         }
 
+
+        public void Jump()
+        {
+            _jump = true;
+        }
+
+        public void Dash()
+        {
+            _dash = true;
+        }
     }
 }
